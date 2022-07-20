@@ -17,7 +17,7 @@ export default class Tester {
 
     const isCorrect = output === expected
 
-    console.log('Test', this.total, '...', isCorrect)
+    console.log('Test', ++this.total, '...', isCorrect)
 
     if (!isCorrect) {
       console.error('Output:', output)
@@ -26,7 +26,6 @@ export default class Tester {
     }
 
     console.log('')
-    ++this.total
   }
 
   report() {
