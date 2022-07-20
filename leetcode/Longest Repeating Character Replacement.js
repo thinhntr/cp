@@ -8,29 +8,31 @@ import Tester from './tester.js';
  * @param {number} k
  * @return {number}
  */
-var characterReplacement = function (s, k) {
-  const n = s.length;
-  let res = 1;
-  for (let len = n; len >= 2; len--) {
-    for (let start = 0; start < n - len + 1; start++) {
-      const counter = _(s)
-        .slice(start, start + len)
-        .countBy()
-        .values()
-        .value();
-      if (len - Math.max(...counter) <= k) return len;
-    }
-  }
-  return res;
+const characterReplacement = function (s, k) {
+	const counter = new Map([[s[0], 1]]);
+	const n = s.length;
+	let l = 0;
+	let max_len = 1;
+	let max_freq = 1;
+	for (const r of _.range(1, n)) {
+		counter.set(s[r], (counter.get(s[r]) ?? 0) + 1);
+		max_freq = Math.max(max_freq, counter.get(s[r]));
+		while (r - l + 1 - max_freq > k) {
+			counter.set(s[l], counter.get(s[l]) - 1);
+			l += 1;
+		}
+		max_len = Math.max(max_len, r - l + 1);
+	}
+	return max_len;
 };
 
 const t = new Tester(characterReplacement);
 
 t.test(4, 'AABABBA', 1);
 t.test(
-  7,
-  'KRSCDCSONAJNHLBMDQGIFCPEKPOHQIHLTDIQGEKLRLCQNBOHNDQGHJPNDQPERNFSSSRDEQLFPCCCARFMDLHADJADAGNNSBNCJQOF',
-  4
+	7,
+	'KRSCDCSONAJNHLBMDQGIFCPEKPOHQIHLTDIQGEKLRLCQNBOHNDQGHJPNDQPERNFSSSRDEQLFPCCCARFMDLHADJADAGNNSBNCJQOF',
+	4
 );
 t.test(4, 'ABAB', 2);
 t.test(4, 'AAAA', 2);
