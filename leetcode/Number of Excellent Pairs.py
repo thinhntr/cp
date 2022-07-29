@@ -1,4 +1,4 @@
-#
+# https://leetcode.com/problems/number-of-excellent-pairs/
 from collections import Counter
 from typing import List
 
