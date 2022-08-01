@@ -24,6 +24,29 @@ class Solution:
             result = max(result, dfs(node, 1))
         return result
 
+    def longestCycle(self, edges: List[int]) -> int:
+        """Iterative Approach"""
+        unvisited = set(range(len(edges)))
+        result = -1
+        while unvisited:
+            node = unvisited.pop()
+            unvisited.add(node)
+            mapping = {}
+            idx = 1
+            length = -1
+            while node in unvisited or node in mapping:
+                if node in mapping :
+                    length = idx - mapping[node]
+                    break
+                unvisited.remove(node)
+                mapping[node] = idx
+                node = edges[node]
+                idx += 1
+            result = max(result, length)
+            if result > len(unvisited):
+                break
+        return result
+
 
 t = Tester(Solution())
 
