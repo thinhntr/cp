@@ -1,82 +1,58 @@
 # https://leetcode.com/problems/max-area-of-island/
+from typing import List, Set, Tuple
 
-from typing import List
-from collections import deque
-
-steps = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-
-
-def is_valid_cell(image, visited, discovered, new_cell, nr, nc) -> bool:
-    new_r, new_c = new_cell
-    return (0 <= new_r < nr
-            and 0 <= new_c < nc
-            and image[new_r][new_c] == 1
-            and new_cell not in discovered
-            and new_cell not in visited)
-
-
-def next_cells(image, visited, discovered, old_cell, nr, nc) -> deque:
-    results = deque()
-    for step in steps:
-        new_cell = old_cell[0] + step[0], old_cell[1] + step[1]
-        if is_valid_cell(image, visited, discovered, new_cell, nr, nc):
-            results.append(new_cell)
-            discovered.add(new_cell)
-    return results
+from tester import Tester
 
 
 class Solution:
     def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
-        max_area = 0
-        nr = len(grid)
-        nc = len(grid[0])
+        """Recursive DFS"""
+        m, n = len(grid), len(grid[0])
+        visited: Set[Tuple[int, int]] = set()
 
-        visited = set()
+        def dfs(i, j):
+            if (
+                (i, j) in visited
+                or i < 0
+                or i >= m
+                or j < 0
+                or j >= n
+                or not grid[i][j]
+            ):
+                return 0
+            visited.add((i, j))
+            area = 1
+            area += dfs(i + 1, j)
+            area += dfs(i - 1, j)
+            area += dfs(i, j + 1)
+            area += dfs(i, j - 1)
+            return area
 
-        for r in range(nr):
-            for c in range(nc):
-                current_cell = (r, c)
-                if not grid[r][c] or current_cell in visited:
-                    continue
-
-                visited.add(current_cell)
-                discovered = set()
-                current_area = 1
-                neighbors = next_cells(grid, visited, discovered, current_cell, nr, nc)
-
-                while neighbors:
-                    neighbor = neighbors.popleft()
-                    discovered.remove(neighbor)
-                    visited.add(neighbor)
-
-                    current_area += 1
-
-                    for new_neighbor in next_cells(grid, visited, discovered, neighbor, nr, nc):
-                        neighbors.append(new_neighbor)
-
-                max_area = max(max_area, current_area)
-
-        return max_area
+        result = 0
+        for i in range(m):
+            for j in range(n):
+                result = max(result, dfs(i, j))
+        return result
 
 
-grid1 = [[0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-         [0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0],
-         [0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0]]
+t = Tester(Solution())
 
-grid2 = [[0, 0, 0, 0, 0, 0, 0, 0]]
+t.test(0, [[0, 0, 0, 0, 0, 0, 0, 0]])
 
-grid3 = [[1, 1, 0, 0, 0], 
-         [1, 1, 0, 0, 0], 
-         [0, 0, 0, 1, 1], 
-         [0, 0, 0, 1, 1]]
+t.test(4, [[1, 1, 0, 0, 0], [1, 1, 0, 0, 0], [0, 0, 0, 1, 1], [0, 0, 0, 1, 1]])
 
-solution = Solution()
+t.test(
+    6,
+    [
+        [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+        [0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0],
+        [0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+    ],
+)
 
-# assert solution.maxAreaOfIsland(grid1) == 6
-# assert solution.maxAreaOfIsland(grid2) == 0
-assert solution.maxAreaOfIsland(grid3) == 4
+t.report()
